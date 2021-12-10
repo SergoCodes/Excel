@@ -35,8 +35,10 @@ module.exports = {
   devtool: isDev ? 'source-map' : false,
   devServer: {
     port: 3000,
-    hot: isDev,
-    open: true
+    hot: true,
+    open: true,
+    // contentBase: path.resolve(__dirname, 'dist')
+    // watchContentBase: true
   },
   resolve: {
     extensions: ['.js'],
