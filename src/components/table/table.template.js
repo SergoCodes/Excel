@@ -5,16 +5,16 @@ const CODES = {
 
 function createCol(col) {
   return `
-    <div class="column" data-type="resizable">
+    <div class="column" data-type="resizable" data-letter="${col}">
       ${col}
       <div class="col-resize" data-resize="col"></div>
     </div>
   `
 }
 
-function createCell() {
+function createCell(col) {
   return `
-    <div class="cell" contenteditable></div>
+    <div class="cell" contenteditable data-letter="${col}"></div>
   `
 }
 
@@ -45,7 +45,9 @@ export function createTable(rowsCount = 15) {
     .join('')
   
   const cells = new Array(colsCount)
-    .fill(createCell())
+    .fill('')
+    .map(toChar)
+    .map(createCell)
     .join('')
   
   rows.push(createRow(cols))
