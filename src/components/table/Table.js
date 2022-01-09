@@ -1,18 +1,19 @@
 import {ExcelComponent} from '@core/ExcelComponent'
 import {createTable} from '@/components/table/table.template'
 import {resizeHandler} from '@/components/table/table.resize'
-import {isCell, shouldResize} from '@/components/table/table.functions'
+import {isCell, shouldResize, nextSelector} from '@/components/table/table.functions'
 import {TableSelection} from '@/components/table/TableSelection'
 import {$} from '@core/dom'
 import {matrix} from '@core/utils'
-import {logPlugin} from '@babel/preset-env/lib/debug'
 
 export class Table extends ExcelComponent {
   static className = 'excel__table'
   
-  constructor($root) {
+  constructor($root, options) {
     super($root, {
-      listeners: ['mousedown', 'keydown']
+      name: 'Table',
+      listeners: ['mousedown', 'keydown', 'input'],
+      ...options
     })
   }
   
@@ -27,8 +28,24 @@ export class Table extends ExcelComponent {
   init() {
     super.init()
     
-    const $cell = this.$root.find('[data-id="0:0"]')
+    this.selectCell(this.$root.find('[data-id="0:0"]'))
+    
+    this.$on('formula:input', text => {
+      this.selection.current.text(text)
+    })
+    
+    this.$on('formula:done', () => {
+      this.selection.current.focus()
+    })
+  }
+  
+  selectCell($cell) {
     this.selection.select($cell)
+    this.$emit('table:select', $cell)
+  }
+  
+  onInput(event) {
+    this.$emit('table:input', this.selection.current.text())
   }
   
   onMousedown(event) {
@@ -39,12 +56,15 @@ export class Table extends ExcelComponent {
         const $cells = matrix($target, this.selection.current)
           .map(id => this.$root.find(`[data-id="${id}"]`))
         this.selection.selectGroup($cells)
-      } else this.selection.select($target)
+      } else {
+        this.selectCell($target)
+      }
     }
   }
   
   onKeydown(event) {
-    const keys = ['Enter',
+    const keys = [
+      'Enter',
       'Tab',
       'ArrowDown',
       'ArrowRight',
@@ -55,29 +75,10 @@ export class Table extends ExcelComponent {
     if (keys.includes(key) && !event.shiftKey) {
       event.preventDefault()
       const id = this.selection.current.id(true)
-      const $active = this.$root.find(nextSelector(event.key, id))
-      this.selection.select($active)
+      const $active = this.$root.find(nextSelector(key, id))
+      this.selectCell($active)
     }
   }
 }
 
-function nextSelector(key, {col, row}) {
-  const MIN_VALUE = 0
-  switch (key) {
-    case 'Enter':
-    case 'ArrowDown':
-      row++
-      break
-    case 'Tab':
-    case 'ArrowRight':
-      col++
-      break
-    case 'ArrowLeft':
-      col = col - 1 < MIN_VALUE ? MIN_VALUE : col - 1
-      break
-    case 'ArrowUp':
-      row = row - 1 < MIN_VALUE ? MIN_VALUE : row - 1
-      break
-  }
-  return `[data-id="${col}:${row}"]`
-}
+
