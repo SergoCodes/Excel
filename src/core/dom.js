@@ -52,8 +52,36 @@ class Dom {
     })
   }
   
+  addClass(className) {
+    this.$el.classList.add(className)
+  }
+  
+  removeClass(className) {
+    this.$el.classList.remove(className)
+  }
+  
+  find(selector) {
+    return $(this.$el.querySelector(selector))
+  }
+  
   findAll(selector) {
     return this.$el.querySelectorAll(selector)
+  }
+  
+  focus(){
+    this.$el.focus()
+    return this
+  }
+  
+  id(parse) {
+    if (parse) {
+      const parsed = this.id().split(':')
+      return {
+        row: +parsed[1],
+        col: +parsed[0]
+      }
+    }
+    return this.data.id
   }
   
   append(node) {

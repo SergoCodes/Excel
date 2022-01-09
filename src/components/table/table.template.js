@@ -12,10 +12,17 @@ function createCol(col) {
   `
 }
 
-function createCell(col) {
-  return `
-    <div class="cell" contenteditable data-letter="${col}"></div>
-  `
+function createCell(row){
+  return function (letter, colNum) {
+      return `
+        <div class="cell"
+          data-type="cell"
+          data-letter="${letter}"
+          data-id="${colNum}:${row}"
+          contenteditable>
+        </div>
+      `
+  }
 }
 
 function createRow(content, number) {
@@ -44,16 +51,16 @@ export function createTable(rowsCount = 15) {
     .map(createCol)
     .join('')
   
-  const cells = new Array(colsCount)
-    .fill('')
-    .map(toChar)
-    .map(createCell)
-    .join('')
-  
   rows.push(createRow(cols))
   
-  for (let i = 0; i < rowsCount; i++) {
-    rows.push(createRow(cells, i+1))
+  for (let row = 0; row < rowsCount; row++) {
+    const cells = new Array(colsCount)
+      .fill('')
+      .map(toChar)
+      .map(createCell(row))
+      .join('')
+    
+    rows.push(createRow(cells, row+1))
   }
   
   return rows.join('')
