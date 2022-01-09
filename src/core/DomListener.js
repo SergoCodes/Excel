@@ -11,10 +11,6 @@ export class DomListener {
   }
   
   initDOMListeners() {
-    // eslint-disable-next-line max-len
-    // this.listeners.forEach(listener => this.$root.$el.addEventListener(listener,
-    //     this['on' + listener.charAt(0).toUpperCase() + listener.slice(1)]
-    // ))
     this.listeners.forEach(listener => {
       const method = getMethodName(listener)
       if (!this[method]) {
@@ -26,8 +22,6 @@ export class DomListener {
       this.methods[listener] = this[method].bind(this)
       this.$root.on(listener, this.methods[listener])
     })
-    
-    // console.log(this.$root)
   }
   
   removeDOMListeners() {
