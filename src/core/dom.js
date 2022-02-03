@@ -57,10 +57,25 @@ class Dom {
     return this.$el.style = value
   }
   
+  attr(name, value) {
+    if (value !== undefined) {
+      this.$el.setAttribute(name, value)
+      return this
+    }
+    return this.$el.getAttribute(name)
+  }
+  
   css(styles = {}) {
     Object.entries(styles).forEach(([key, value]) => {
       this.$el.style[key] = value
     })
+  }
+  
+  getStyles(styles = []) {
+    return styles.reduce((res, s) => {
+      res[s] = this.$el.style[s]
+      return res
+    }, {})
   }
   
   addClass(className) {
